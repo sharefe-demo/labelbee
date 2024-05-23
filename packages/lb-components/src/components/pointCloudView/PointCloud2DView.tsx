@@ -24,6 +24,7 @@ import RightSquareOutlined from '@/assets/annotation/common/icon_right_squareOut
 import { IMappingImg } from '@/types/data';
 import { isNumber } from 'lodash';
 import { getBoundingRect, isBoundingRectInImage } from '@/utils';
+import useCopyBackwardResult from './hooks/useCopyBackwardResult'
 
 // TODO, It will be deleted when the exported type of lb-annotation is work.
 export interface IAnnotationDataTemporarily {
@@ -128,6 +129,8 @@ const PointCloud2DView = ({
   loadPCDFileLoading,
   checkMode,
   measureVisible,
+
+  imgIndex
 }: IProps) => {
   const [annotations2d, setAnnotations2d] = useState<IAnnotationData2dView[]>([]);
   const { topViewInstance, displayPointCloudList, polygonList, imageSizes, selectedIDs } =
@@ -135,6 +138,8 @@ const PointCloud2DView = ({
   const [selectedID, setSelectedID] = useState<number | string>('');
   const [isEnlarge, setIsEnlarge] = useState<boolean>(false);
   const [curIndex, setCurIndex] = useState<number | undefined>(undefined);
+
+  useCopyBackwardResult(imgIndex)
 
   useEffect(() => {
     if (
@@ -419,6 +424,7 @@ const PointCloud2DView = ({
             >
               {item?.annotations && item?.url && (
                 <PointCloud2DSingleView
+                  key={item.url}
                   currentData={currentData}
                   view2dData={item}
                   setSelectedID={setSelectedID}

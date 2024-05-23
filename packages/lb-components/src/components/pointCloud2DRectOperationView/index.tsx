@@ -1,13 +1,21 @@
 import { useLatest, useMemoizedFn } from 'ahooks';
 import { Spin } from 'antd/es';
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { connect } from 'react-redux';
 import { usePointCloudViews } from '@/components/pointCloudView/hooks/usePointCloudViews';
 import { PointCloudContext } from '@/components/pointCloudView/PointCloudContext';
 import { a2MapStateToProps } from '@/store/annotation/map';
 import { LabelBeeContext } from '@/store/ctx';
 import { IMappingImg } from '@/types/data';
-import { ImgUtils, PointCloud2DRectOperation } from '@labelbee/lb-annotation';
+import { ImgUtils, PointCloud2DRectOperation, uuid } from '@labelbee/lb-annotation';
 import { IPointCloudBoxRect, IPointCloud2DRectOperationViewRect } from '@labelbee/lb-utils';
 
 import { TAfterImgOnLoad } from '../AnnotationView';
@@ -22,10 +30,19 @@ interface IPointCloud2DRectOperationViewProps {
   config: any;
   checkMode?: boolean;
   afterImgOnLoad: TAfterImgOnLoad;
+
+  shouldExcludePointCloudBoxListUpdate?: boolean;
 }
 
 const PointCloud2DRectOperationView = (props: IPointCloud2DRectOperationViewProps) => {
-  const { mappingData, size, config, checkMode, afterImgOnLoad } = props;
+  const {
+    mappingData,
+    size,
+    config,
+    checkMode,
+    afterImgOnLoad,
+    shouldExcludePointCloudBoxListUpdate,
+  } = props;
   const url = mappingData?.url ?? '';
 
   const {
@@ -36,6 +53,7 @@ const PointCloud2DRectOperationView = (props: IPointCloud2DRectOperationViewProp
     addRectIn2DView,
     updateRectIn2DView,
     removeRectIn2DView,
+    setRectList,
   } = useContext(PointCloudContext);
 
   const { update2DViewRect, remove2DViewRect } = usePointCloudViews();
@@ -56,13 +74,17 @@ const PointCloud2DRectOperationView = (props: IPointCloud2DRectOperationViewProp
 
   const handleUpdateDragResult = (rect: IPointCloud2DRectOperationViewRect) => {
     const { boxID } = rect;
-    if (boxID) {
-      const result = update2DViewRectFn?.(rect);
-      newPointCloudResult.current = result;
-      setPointCloudResult(result);
-      return;
+
+    if (!shouldExcludePointCloudBoxListUpdate) {
+      if (boxID) {
+        const result = update2DViewRectFn?.(rect);
+        newPointCloudResult.current = result;
+        setPointCloudResult(result);
+        return;
+      }
     }
-    updateRectIn2DView(rect);
+
+    updateRectIn2DView(rect, true);
   };
 
   const handleAddRect = (rect: IPointCloud2DRectOperationViewRect) => {
@@ -72,13 +94,15 @@ const PointCloud2DRectOperationView = (props: IPointCloud2DRectOperationViewProp
   };
 
   const handleRemoveRect = (rectList: IPointCloud2DRectOperationViewRect[]) => {
-    const hasBoxIDRect = rectList.find((rect) => rect.boxID);
-    if (hasBoxIDRect) {
-      const result = remove2DViewRectFn?.(hasBoxIDRect);
-      newPointCloudResult.current = result;
-      setPointCloudResult(result);
-      updateRectList();
-      return;
+    if (!shouldExcludePointCloudBoxListUpdate) {
+      const hasBoxIDRect = rectList.find((rect) => rect.boxID);
+      if (hasBoxIDRect) {
+        const result = remove2DViewRectFn?.(hasBoxIDRect);
+        newPointCloudResult.current = result;
+        setPointCloudResult(result);
+        updateRectList();
+        return;
+      }
     }
     removeRectIn2DView(rectList);
   };
@@ -97,7 +121,7 @@ const PointCloud2DRectOperationView = (props: IPointCloud2DRectOperationViewProp
   });
 
   const updateRectList = useMemoizedFn(() => {
-    const rectListByBoxList = getRectListByBoxList();
+    const rectListByBoxList = shouldExcludePointCloudBoxListUpdate ? [] : getRectListByBoxList();
     const selectedRectID = operation.current?.selectedRectID;
     operation.current?.setResult([...rectListByBoxList, ...rectListInImage]);
     if (selectedRectID) {

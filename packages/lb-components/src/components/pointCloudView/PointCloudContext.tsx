@@ -12,12 +12,21 @@ import {
   IPointCloudBoxRect,
   IPointCloud2DRectOperationViewRect,
 } from '@labelbee/lb-utils';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   PointCloud,
   PointCloudAnnotation,
   ActionsHistory,
   EToolName,
+  uuid,
 } from '@labelbee/lb-annotation';
 import { useDispatch } from '@/store/ctx';
 import { ChangeSave } from '@/store/annotation/actionCreators';
@@ -44,6 +53,8 @@ interface IPointCloudSegment {
   ptSegmentInstance?: PointCloud;
   setPtSegmentInstance: (instance?: PointCloud) => void;
 }
+
+type UnlinkImageItem = string;
 
 type AttrPanelLayout = '' | 'left' | 'right';
 
@@ -83,7 +94,7 @@ export interface IPointCloudContext
   setRectList: (rectList: IPointCloudBoxRect[]) => void;
   addRectIn2DView: (rect: IPointCloud2DRectOperationViewRect) => void;
   removeRectIn2DView: (rects: IPointCloud2DRectOperationViewRect[]) => void;
-  updateRectIn2DView: (rect: IPointCloud2DRectOperationViewRect) => void;
+  updateRectIn2DView: (rect: IPointCloud2DRectOperationViewRect, mergeSelf?: boolean) => void;
   lineList: ILine[];
   setLineList: (lineList: ILine[]) => void;
 
@@ -128,6 +139,18 @@ export interface IPointCloudContext
     [key: string]: ISize;
   };
   cacheImageNodeSize: (params: { imgNode: HTMLImageElement; path: string }) => void;
+
+  /** 未关联项列表 */
+  unlinkImageItems: UnlinkImageItem[];
+  setUnlinkImageItems: Dispatch<SetStateAction<UnlinkImageItem[]>>;
+
+  addRectFromPointCloudBoxByImageName: (imageName: string) => boolean;
+  removeRectBySpecifyId: (
+    imageName: string,
+    ids: string[],
+    idField?: keyof IPointCloudBoxRect,
+  ) => boolean;
+  removeRectByPointCloudBoxId: (imageName: string) => boolean;
 }
 
 const pickRectObject = (rect: IPointCloud2DRectOperationViewRect) => {
@@ -206,6 +229,14 @@ export const PointCloudContext = React.createContext<IPointCloudContext>({
   setCuboidBoxIn2DView: (bool?: boolean) => {},
   imageSizes: {},
   cacheImageNodeSize: () => {},
+
+  unlinkImageItems: [],
+  setUnlinkImageItems: () => {},
+
+  addRectFromPointCloudBoxByImageName: (imageName: string) => false,
+  removeRectBySpecifyId: (imageName: string, ids: string[], idField?: keyof IPointCloudBoxRect) =>
+    false,
+  removeRectByPointCloudBoxId: (imageName: string) => false,
 });
 
 export const PointCloudProvider: React.FC<{}> = ({ children }) => {
@@ -240,6 +271,8 @@ export const PointCloudProvider: React.FC<{}> = ({ children }) => {
     [key: string]: ISize;
   }>({});
 
+  const [unlinkImageItems, setUnlinkImageItems] = useState<UnlinkImageItem[]>(() => []);
+
   const dispatch = useDispatch();
 
   const cacheImageNodeSize = (params: { imgNode: HTMLImageElement; path: string }) => {
@@ -260,6 +293,85 @@ export const PointCloudProvider: React.FC<{}> = ({ children }) => {
   const selectedID = useMemo(() => {
     return selectedIDs.length === 1 ? selectedIDs[0] : '';
   }, [selectedIDs]);
+
+  const removeRectBySpecifyId = useCallback(
+    (imageName: string, ids: string[], idField: keyof IPointCloudBoxRect = 'extId') => {
+      const idField_ = idField || 'id';
+      const set = new Set(ids);
+      setRectList((prev: IPointCloudBoxRect[]) => {
+        return prev.filter((i) => {
+          if (i.imageName !== imageName) {
+            return true;
+          }
+          const val = i[idField_];
+          return set.has(String(val)) === false;
+        });
+      });
+
+      return true;
+    },
+    [],
+  );
+
+  const removeRectByPointCloudBoxId = useCallback(
+    (imageName: string) => {
+      const ids = pointCloudBoxList.map((item) => item.id);
+
+      return removeRectBySpecifyId(imageName, ids, 'extId');
+    },
+    [pointCloudBoxList, removeRectBySpecifyId],
+  );
+
+  const addRectFromPointCloudBoxByImageName = useCallback(
+    (imageName: string) => {
+      if (!imageName) {
+        return false;
+      }
+
+      const deltaRects: IPointCloudBoxRect[] = pointCloudBoxList
+        .filter((item) => Array.isArray(item.rects))
+        .map<IPointCloudBoxRect | null>((item) => {
+          const { id, attribute, trackID } = item;
+          const found = item.rects!.find((item) => item.imageName === imageName);
+          if (found) {
+            const base = _.pick(found, ['width', 'height', 'x', 'y', 'imageName']);
+
+            return {
+              ...base,
+              id: uuid(),
+              attribute: attribute,
+              order: trackID,
+              extId: id,
+              lineDash: [],
+            };
+          }
+
+          return null;
+        })
+        .filter((val): val is IPointCloudBoxRect => {
+          return val !== null;
+        });
+
+      if (deltaRects.length) {
+        setRectList((prev) => {
+          // Avoid add repeatly
+          const set = new Set(prev.map((item) => item.extId));
+          const filtered = deltaRects.filter((item) => set.has(item.extId) === false);
+
+          if (filtered.length) {
+            return [...prev, ...filtered];
+          }
+
+          return prev;
+        });
+
+        return true;
+      }
+
+      return false;
+    },
+    [pointCloudBoxList],
+  );
 
   const ptCtx = useMemo(() => {
     const selectedPointCloudBox = pointCloudBoxList.find((v) => v.id === selectedID);
@@ -314,12 +426,12 @@ export const PointCloudProvider: React.FC<{}> = ({ children }) => {
       });
     };
 
-    const updateRectIn2DView = (rect: IPointCloud2DRectOperationViewRect) => {
+    const updateRectIn2DView = (rect: IPointCloud2DRectOperationViewRect, mergeSelf = false) => {
       const newRect = pickRectObject(rect);
       setRectList((prev: IPointCloudBoxRect[]) => {
         return prev.map((i) => {
           if (i.id === rect.id) {
-            return newRect;
+            return mergeSelf ? { ...i, ...newRect } : newRect;
           }
           return i;
         });
@@ -515,6 +627,13 @@ export const PointCloudProvider: React.FC<{}> = ({ children }) => {
       cacheImageNodeSize,
       highlightIDs,
       setHighlightIDs,
+
+      unlinkImageItems,
+      setUnlinkImageItems,
+
+      removeRectByPointCloudBoxId,
+      removeRectBySpecifyId,
+      addRectFromPointCloudBoxByImageName,
     };
   }, [
     valid,
@@ -540,6 +659,10 @@ export const PointCloudProvider: React.FC<{}> = ({ children }) => {
     cuboidBoxIn2DView,
     imageSizes,
     highlightIDs,
+    unlinkImageItems,
+    removeRectByPointCloudBoxId,
+    removeRectBySpecifyId,
+    addRectFromPointCloudBoxByImageName,
   ]);
 
   useEffect(() => {

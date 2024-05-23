@@ -10,7 +10,7 @@ import { ConfigUtils } from '@/utils/ConfigUtils';
 import { composeResult, composeResultWithBasicImgInfo } from '@/utils/data';
 import StepUtils from '@/utils/StepUtils';
 import ToolUtils from '@/utils/ToolUtils';
-import { AnnotationEngine, CommonToolUtils, ImgUtils, MathUtils } from '@labelbee/lb-annotation';
+import { AnnotationEngine, CommonToolUtils, ImgUtils, MathUtils, EventBus } from '@labelbee/lb-annotation';
 import { i18n, IPointCloudBox, PointCloudUtils } from '@labelbee/lb-utils';
 import { Modal } from 'antd';
 import { message } from 'antd/es';
@@ -763,6 +763,14 @@ export const annotationReducer = (
        */
       // @ts-ignore
       toolInstance?.asyncData?.(imgList[imgIndex]);
+
+      // Broadcast the copy done
+      EventBus.emit('copy:backward_result', {
+        currentData: imgList[imgIndex],
+        currentIndex: imgIndex,
+        list: imgList
+      })
+
       return {
         ...state,
         imgList: [...imgList],
