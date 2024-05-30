@@ -20,6 +20,7 @@ import { LabelBeeContext } from '@/store/ctx';
 import PredictTracking from '@/components/predictTracking';
 import LLMToolView from '@/components/LLMToolView';
 import SwitchCuboidBoxIn2DView from '@/views/MainView/toolFooter/SwitchCuboidBoxIn2DView';
+import BatchSwitchConnectIn2DView from '@/views/MainView/toolFooter/BatchSwitchConnectIn2DView'
 import MeasureCanvas from './components/measureCanvas';
 import AnnotatedBox from './views/MainView/sidebar/PointCloudToolSidebar/components/annotatedBox';
 import { FindTrackIDIndexInCheckMode as FindTrackIDIndex } from './views/MainView/sidebar/PointCloudToolSidebar/components/findTrackIDIndex';
@@ -76,6 +77,7 @@ export {
   VideoTagTool,
   PredictTracking,
   SwitchCuboidBoxIn2DView,
+  BatchSwitchConnectIn2DView,
   MeasureCanvas,
   AnnotatedBox,
   FindTrackIDIndex,
