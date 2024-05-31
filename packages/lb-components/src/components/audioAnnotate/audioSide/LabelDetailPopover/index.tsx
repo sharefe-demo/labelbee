@@ -1,5 +1,5 @@
 import { Popover, Spin } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
 import styles from './index.module.scss';
 // import SampleVideo from '@/components/sampleVideo';
 // import LazyLoad from 'react-lazy-load';
@@ -31,7 +31,7 @@ const ImgLoading: React.FC<any> = ({ src, ...props }) => {
   );
 };
 
-const LabelDetailPopover: React.FC<IProps> = ({ children, labelDetail, visible, style }) => {
+const LabelDetailPopover: React.FC<PropsWithChildren<IProps>> = ({ children, labelDetail, visible, style }) => {
   if (!visible) {
     return <div>{children}</div>;
   }

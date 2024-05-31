@@ -1,14 +1,14 @@
 import { getClassName } from '@/utils/dom';
 import classNames from 'classnames';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 
-export const PointCloudContainer: React.FC<{
+export const PointCloudContainer: React.FC<PropsWithChildren<{
   title: string | React.ReactElement | null;
   toolbar?: React.ReactElement | null;
   className?: string;
   style?: React.CSSProperties;
   titleOnSurface?: boolean; // adherent surface
-}> = ({ title, toolbar, children, className, style, titleOnSurface }) => {
+}>> = ({ title, toolbar, children, className, style, titleOnSurface }) => {
   return (
     <div className={classNames([className, getClassName('point-cloud-container')])} style={style}>
       {titleOnSurface ? (

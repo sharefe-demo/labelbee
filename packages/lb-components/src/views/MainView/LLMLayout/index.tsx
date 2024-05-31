@@ -38,7 +38,7 @@ const LLMLayout: React.FC<AppProps & IProps> = (props) => {
           };
         }, [hoverKey, modelAPIResponse, newAnswerList])}
       >
-        {props?.leftSider}
+        {typeof props.leftSider === 'function' ? props.leftSider() : props.leftSider}
         <Content
           className={classnames({
             [`${layoutCls}__content`]: true,

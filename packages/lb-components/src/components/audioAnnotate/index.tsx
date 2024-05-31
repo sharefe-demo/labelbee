@@ -576,7 +576,7 @@ const AudioAnnotate: React.FC<AppProps & IProps> = (props) => {
     <AudioClipProvider>
       <Spin spinning={loading} wrapperClassName='audio-tool-spinner'>
         <Layout className={getClassName('layout', 'container')} style={{ height: '100%' }}>
-          {props?.leftSider}
+          {typeof props.leftSider === 'function' ? props.leftSider() : props.leftSider}
           <Content className={`${layoutCls}__content`}>
             <div className={styles.containerWrapper}>
               <div className={styles.audioWrapper}>

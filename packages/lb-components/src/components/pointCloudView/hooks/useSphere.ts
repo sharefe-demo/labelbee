@@ -3,7 +3,7 @@ import { PointCloudContext } from '@/components/pointCloudView/PointCloudContext
 import _ from 'lodash';
 import { useHistory } from '@/components/pointCloudView/hooks/useHistory';
 import { cAnnotation } from '@labelbee/lb-annotation';
-import { IPointUnit } from '@labelbee/lb-utils';
+import { IPointCloudSphere, IPointUnit } from '@labelbee/lb-utils';
 
 const { ESortDirection } = cAnnotation;
 
@@ -31,7 +31,7 @@ export const useSphere = () => {
   );
 
   const updatePointCloudSphere = useCallback(
-    (sphereParams) => {
+    (sphereParams: IPointCloudSphere) => {
       const sphereIndex = pointCloudSphereList.findIndex((v) => v.id === sphereParams.id)
       if (sphereIndex > -1) {
         pointCloudSphereList.splice(sphereIndex, 1, _.merge(pointCloudSphereList[sphereIndex], sphereParams));

@@ -112,7 +112,7 @@ const PointCloudSegmentToolbar = () => {
                 ? 'PointCloudUncoverMode'
                 : 'PointCloudCoverMode',
             ),
-            icon: () => null,
+            icon: null,
           });
         }}
       >
