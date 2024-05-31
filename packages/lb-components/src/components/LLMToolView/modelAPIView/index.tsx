@@ -114,7 +114,7 @@ const LoadingMessage = () => {
         [`${LLMViewCls}__loading`]: true,
       })}
     >
-      {i18n.t('AnswersAreBeingGenerated')}
+      {i18n.t<string>('AnswersAreBeingGenerated')}
       <img src={loadingSvg} />
     </div>
   );
@@ -127,7 +127,7 @@ const FailedMessage = () => {
         [`${LLMViewCls}__failed`]: true,
       })}
     >
-      {i18n.t('AnswerGenerationFailedPleaseTryAgainLater')} <InfoCircleFilled />
+      {i18n.t<string>('AnswerGenerationFailedPleaseTryAgainLater')} <InfoCircleFilled />
     </span>
   );
 };
@@ -227,7 +227,7 @@ const ModelAPIContent = ({
             })}
           >
             <span onClick={refreshAnswer}>
-              {i18n.t('ReGenerate')}
+              {i18n.t<string>('ReGenerate')}
               <SyncOutlined />
             </span>
           </div>
