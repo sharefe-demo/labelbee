@@ -94,12 +94,12 @@ const AnnotatedAttributesItem = ({ attribute }: { attribute: IInputList }) => {
 
   const onDeleteGraphByAttr = (attribute: IInputList) => {
     Modal.confirm({
-      content: i18n.t('onDeleteGraphByAttr', { attribute: attribute.key }),
+      content: i18n.t<string>('onDeleteGraphByAttr', { attribute: attribute.key }),
       onOk: () => {
         deleteGraphByAttr(attribute.value);
       },
-      okText: i18n.t('Confirm'),
-      cancelText: i18n.t('Cancel'),
+      okText: i18n.t<string>('Confirm'),
+      cancelText: i18n.t<string>('Cancel'),
     });
   };
 

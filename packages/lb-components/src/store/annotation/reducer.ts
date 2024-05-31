@@ -418,7 +418,7 @@ export const annotationReducer = (
         } else {
           annotationEngine?.setBasicInfo(dependStepConfig.tool);
           annotationEngine?.forbidOperation();
-          message.info(i18n.t('NoDependency'));
+          message.info(i18n.t<string>('NoDependency'));
         }
       }
 
@@ -499,7 +499,7 @@ export const annotationReducer = (
           // TODO: 禁用绘制交互，有无依赖之间的操作切换
           annotationEngine?.setBasicInfo(dependStepConfig.tool);
           annotationEngine?.forbidOperation();
-          message.info(i18n.t('NoDependency'));
+          message.info(i18n.t<string>('NoDependency'));
         }
       }
 
@@ -708,12 +708,12 @@ export const annotationReducer = (
 
       Modal.destroyAll();
       Modal.confirm({
-        content: i18n.t(valid ? 'updateValidFromValidToInValid' : 'updateValidFromInValidToValid'),
+        content: i18n.t<string>(valid ? 'updateValidFromValidToInValid' : 'updateValidFromInValidToValid'),
         onOk: () => {
           toolInstance?.setValid(!valid);
         },
-        okText: i18n.t('Confirm'),
-        cancelText: i18n.t('Cancel'),
+        okText: i18n.t<string>('Confirm'),
+        cancelText: i18n.t<string>('Cancel'),
       });
 
       return state;
