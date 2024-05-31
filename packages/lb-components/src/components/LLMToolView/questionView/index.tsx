@@ -41,7 +41,7 @@ interface IProps {
   checkMode?: boolean;
   annotation?: any;
   LLMConfig?: ILLMToolConfig;
-  answerHeaderSlot?: React.ReactDOM | string;
+  answerHeaderSlot?: React.ReactNode;
 }
 
 export const LLMViewCls = `${prefix}-LLMView`;

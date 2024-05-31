@@ -41,7 +41,7 @@ export type Sider = ({
   imageAttributeInfo: React.ReactNode;
   operation: React.ReactNode;
   tagToolSideBar: React.ReactNode;
-  textToolSideBar: React.ReactNode;
+  textToolSideBar: React.ReactNode | ((disabled: boolean) => React.ReactNode);
   horizontal: React.ReactNode;
   scribbleSidebar: React.ReactNode;
   LLMSidebar: React.ReactNode;

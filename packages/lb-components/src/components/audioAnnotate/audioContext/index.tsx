@@ -1,5 +1,5 @@
 import { RightOutlined } from '@ant-design/icons';
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useMemo, PropsWithChildren } from 'react';
 import { Input } from 'antd';
 import { useSetState } from 'ahooks';
 import { SetState } from 'ahooks/lib/useSetState';
@@ -135,7 +135,7 @@ const AudioClipContext = React.createContext<IAudioClipContext>({
 
 export const useAudioClipStore = () => useContext(AudioClipContext);
 
-export const AudioClipProvider: React.FC = ({ children }) => {
+export const AudioClipProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [state, setState] = useSetState(DEFAULT_AUDIO_CLIP);
 
   const value = useMemo(() => {

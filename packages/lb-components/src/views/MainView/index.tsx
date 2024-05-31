@@ -156,7 +156,7 @@ const MainView: React.FC<AppProps & IProps> = (props) => {
   return (
     <ViewportProviderLayout {...props}>
       <Layout className={getClassName('layout', 'container')}>
-        {props?.leftSider}
+        {typeof props.leftSider === 'function' ? props.leftSider() : props.leftSider}
         <Content className={`${layoutCls}__content`}>
           <AnnotatedArea {...props} />
           <PreviewResult />

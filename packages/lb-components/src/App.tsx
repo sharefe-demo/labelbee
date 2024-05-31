@@ -81,7 +81,7 @@ export interface AppProps {
   showTips?: boolean; // 是否展示 tips
   tips?: string; // Tips 具体内容
   defaultLang: 'en' | 'cn'; // 国际化设置
-  leftSider?: () => React.ReactNode | React.ReactNode;
+  leftSider?: (() => React.ReactNode ) | React.ReactNode;
 
   // data Correction
   skipBeforePageTurning?: (pageTurning: Function) => void;

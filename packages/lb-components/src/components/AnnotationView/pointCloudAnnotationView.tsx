@@ -28,7 +28,7 @@ const PointCloudAnnotationView = (props: IProps) => {
   let viewOperation = useRef<any>();
   const instance = useRef<any>();
 
-  const refCallback = useCallback((node) => {
+  const refCallback = useCallback((node: HTMLDivElement) => {
     viewOperation.current = node;
   }, []);
 

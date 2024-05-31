@@ -42,7 +42,7 @@ const NLPLayout: React.FC<AppProps & IProps> = (props) => {
           };
         }, [highlightKey])}
       >
-        {props?.leftSider}
+        {typeof props.leftSider === 'function' ? props.leftSider() : props.leftSider}
         <Content
           className={classnames({
             [`${layoutCls}__content`]: true,
