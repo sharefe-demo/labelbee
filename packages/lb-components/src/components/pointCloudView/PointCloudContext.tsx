@@ -34,6 +34,7 @@ import _ from 'lodash';
 import type { MapIndirectWeakSet } from './utils/map';
 import { addMapIndirectWeakSetItem } from './utils/map';
 
+import useTimeoutFunc from './hooks/useTimeoutFunc'
 
 interface IPointCloudContextInstances {
   topViewInstance?: PointCloudAnnotation;
@@ -245,7 +246,7 @@ export const PointCloudContext = React.createContext<IPointCloudContext>({
 });
 
 export const PointCloudProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
-  const [pointCloudBoxList, setPointCloudResult] = useState<IPointCloudBoxList>([]);
+  const [pointCloudBoxList, setPointCloudResult_] = useState<IPointCloudBoxList>([]);
   const [pointCloudSphereList, setPointCloudSphereList] = useState<IPointCloudSphereList>([]);
   const [polygonList, setPolygonList] = useState<IPolygonData[]>([]);
   const [rectList, setRectList] = useState<IPointCloudBoxRect[]>([]);
@@ -439,6 +440,38 @@ export const PointCloudProvider: React.FC<PropsWithChildren<{}>> = ({ children }
         }, new Map<string, Map<string, WeakSet<IPointCloudBoxRect>>>())
     );
   }, [rectList]);
+
+  const { fn: callWhenPointCloudResultChanged } = useTimeoutFunc((pcIds: string[]) => {
+    setSelectedIDsState(ids => {
+      const remainIds = pcIds
+
+      const set = new Set(remainIds)
+      let hasFiltered = false
+      const filtered = ids.filter(id => {
+        const r = set.has(id)
+
+        if (!r) {
+          hasFiltered = true
+        }
+
+        return r
+      })
+
+      if (hasFiltered) {
+        return filtered
+      }
+
+      return ids
+    })
+  }, 200)
+
+  const setPointCloudResult = useCallback((resultList: IPointCloudBoxList) => {
+    const pcIds = resultList.map(item => item.id)
+    setPointCloudResult_(resultList)
+
+    // Keep the selectedIDs in `pointCloudBoxList` list
+    callWhenPointCloudResultChanged(pcIds)
+  }, [])
 
   const ptCtx = useMemo(() => {
     const selectedPointCloudBox = pointCloudBoxList.find((v) => v.id === selectedID);
