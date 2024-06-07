@@ -122,7 +122,7 @@ const PointCloud2DSingleView = ({
             checkMode={checkMode}
             afterImgOnLoad={afterImgOnLoad}
           />
-          {dataLinkRendered}
+          {!checkMode && dataLinkRendered}
         </>
       )}
       {calib && (
