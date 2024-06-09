@@ -103,6 +103,18 @@ const PointCloud2DRectOperationView = (props: IPointCloud2DRectOperationViewProp
         return;
       }
     }
+
+    // Remove the matching item from point cloud result when hit `delete` hotkey
+    // @ts-ignore
+    const matchedExtIdIDRect = rectList.find((rect) => rect.extId);
+    if (matchedExtIdIDRect) {
+      // @ts-ignore
+      const { imageName, extId: boxID } = matchedExtIdIDRect
+      const result = remove2DViewRectFn?.({ boxID, imageName });
+      newPointCloudResult.current = result;
+      setPointCloudResult(result);
+    }
+
     removeRectIn2DView(rectList);
   };
 
