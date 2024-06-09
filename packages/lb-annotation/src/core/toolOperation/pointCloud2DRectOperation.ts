@@ -53,6 +53,11 @@ class PointCloud2DRectOperation extends RectOperation {
     if (this.checkMode || e.keyCode !== EKeyCode.Delete) {
       return;
     }
+
+    // Stop keydown bubble
+    // NOTE Here we only adapt a few simple keydown events, eg: delete item in 2d areaß
+    e.stopImmediatePropagation();
+
     super.onKeyDown(e);
     return true;
   }
