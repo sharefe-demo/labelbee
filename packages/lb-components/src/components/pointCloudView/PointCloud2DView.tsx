@@ -1,10 +1,10 @@
 import { getClassName } from '@/utils/dom';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { PointCloudContainer } from './PointCloudLayout';
 import { PointCloudContext } from './PointCloudContext';
 import { connect } from 'react-redux';
 
-import { pointCloudLidar2image, cKeyCode, pointListLidar2Img } from '@labelbee/lb-annotation';
+import { pointCloudLidar2image, cKeyCode, pointListLidar2Img, EventBus } from '@labelbee/lb-annotation';
 import { LabelBeeContext } from '@/store/ctx';
 import { a2MapStateToProps, IA2MapStateProps } from '@/store/annotation/map';
 import {
@@ -141,8 +141,13 @@ const PointCloud2DView = ({
     windowKeydownListenerHook,
   } = useContext(PointCloudContext);
   const [selectedID, setSelectedID] = useState<number | string>('');
-  const [isEnlarge, setIsEnlarge] = useState<boolean>(false);
+  const [isEnlarge, setIsEnlarge_] = useState<boolean>(false);
   const [curIndex, setCurIndex] = useState<number | undefined>(undefined);
+
+  const setIsEnlarge = useCallback((isEnlarge: boolean) => {
+    setIsEnlarge_(isEnlarge)
+    EventBus.emit('2d-image:enlarge', isEnlarge)
+  }, [])
 
   const formatViewDataPointList = ({
     viewDataPointList,
