@@ -250,6 +250,7 @@ const PointCloud3D: React.FC<IA2MapStateProps> = ({ currentData, config, highlig
        */
       const zoom = ptCtx.topViewInstance?.pointCloudInstance?.camera.zoom ?? 1;
       ptCtx.mainViewInstance?.updateCameraZoom(zoom);
+      ptCtx.mainViewInstance?.setHighlightColor(selectedId);
     }
   }, [selectedBox?.info?.id]);
 
