@@ -57,7 +57,9 @@ export default class AudioDataTransform {
       }
       if (needMergeKeys.includes(key)) {
         if (Array.isArray(value)) {
-          result[key] = [...(result[key] ?? []), ...value];
+          result[key] = [...(result[key] ?? []), ...value]?.filter(
+            ({ id, start, end }) => id && start >= 0 && end >= 0,
+          );
           return;
         }
         result[key] = { ...(result[key] ?? {}), ...value };
