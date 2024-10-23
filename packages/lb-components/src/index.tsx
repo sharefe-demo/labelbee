@@ -34,6 +34,8 @@ import { ToolStyleProvider } from './hooks/useToolStyle';
 import { LoadFileAndFileData } from './store/annotation/reducer';
 import useToolConfigStore from '@/store/toolConfig';
 import { LLMMultiWheelSourceView } from './components/LLMMultiWheelView';
+import AudioDataTransform from './components/audioAnnotate/utils/dataTransform';
+
 
 export const store = configureStore();
 
@@ -108,6 +110,7 @@ export {
   generatePointCloudBoxRects,
   SubAttributeList,
   useToolConfigStore,
+  AudioDataTransform,
 };
 
 export * from './constant';

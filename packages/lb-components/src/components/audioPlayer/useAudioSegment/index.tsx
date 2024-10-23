@@ -11,7 +11,7 @@ import { useAudioClipStore } from '@/components/audioAnnotate/audioContext';
 import { useEventListener, useMemoizedFn } from 'ahooks';
 import { ISetSelectedRegionParams } from '..';
 import { IAudioTimeSlice } from '@labelbee/lb-utils';
-import DataTransform from '@/components/audioAnnotate/utils/dataTransform';
+import AudioDataTransform from '@/components/audioAnnotate/utils/dataTransform';
 const EKeyCode = cKeyCode.default;
 
 interface IProps {
@@ -69,14 +69,14 @@ const useAudioSegment = (props: IProps) => {
       return;
     }
     const current = regionMap[id];
-    const newData = DataTransform.getClipTextByConfig(current, clipTextList);
+    const newData = AudioDataTransform.getClipTextByConfig(current, clipTextList);
     const targetLeft = {
       ...newData,
       id: waveRef.current?.util.getId('segment_'),
       end: time,
       subAttribute: current.subAttribute ?? {},
     };
-    const clearText = DataTransform.getClipTextByConfig(current, clipTextList, true);
+    const clearText = AudioDataTransform.getClipTextByConfig(current, clipTextList, true);
     const targetRight = {
       ...clearText,
       id: waveRef.current?.util.getId('segment_'),
