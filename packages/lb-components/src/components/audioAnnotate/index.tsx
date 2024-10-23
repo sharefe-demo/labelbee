@@ -36,6 +36,8 @@ import ToggleTagModeASvg from '@/assets/annotation/audio/tagA.svg';
 import ClipSvg from '@/assets/annotation/audio/clip.svg';
 import ClipASvg from '@/assets/annotation/audio/clipA.svg';
 import { isImageValue } from '@/utils/audio';
+import AudioDataTransform from './utils/dataTransform';
+import { useMemoizedFn } from 'ahooks';
 
 const { EAudioToolName } = cTool;
 const EKeyCode = cKeyCode.default;
@@ -350,9 +352,19 @@ const AudioAnnotate: React.FC<AppProps & IProps> = (props) => {
   const { toolInstanceRef } = useCustomToolInstance({ basicInfo });
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [result, setResult] = useState<any>(null);
+  const [result, _setResult] = useState<any>(null);
   const [duration, setDuration] = useState<number>(0);
   const [valid, setValid] = useState(true);
+
+  // Convert dirty data to normal data
+  const setResult = (data: any) => {
+    if (!data) {
+      return;
+    }
+    const fixedData = AudioDataTransform.fixData(data);
+
+    _setResult(fixedData);
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -511,55 +523,53 @@ const AudioAnnotate: React.FC<AppProps & IProps> = (props) => {
     setDuration(duration);
   };
 
-  const removeRegion = (id: string) => {
-    setResult((result: any) => ({
-      ...result,
+  const removeRegion = useMemoizedFn((id: string) => {
+    setResult({
+      ...(result || {}),
       regions: (result?.regions || []).filter((item: any) => item.id !== id),
-    }));
-  };
-
-  const updateRegion = (region: IAudioTimeSlice) => {
-    setResult((result: any) => {
-      const currentRegions: IAudioTimeSlice[] = result?.regions ?? [];
-      const { id } = region;
-      const currentRegion = currentRegions.find((item: IAudioTimeSlice) => item.id === id);
-      if (currentRegion) {
-        return {
-          ...result,
-          regions: currentRegions.map((item: IAudioTimeSlice) => {
-            if (id === item.id) {
-              return {
-                ...item,
-                ...region,
-              };
-            }
-            return item;
-          }),
-        };
-      } else {
-        return {
-          ...result,
-          regions: [...currentRegions, region],
-        };
-      }
     });
-  };
+  });
+
+  const updateRegion = useMemoizedFn((region: IAudioTimeSlice) => {
+    const currentRegions: IAudioTimeSlice[] = result?.regions ?? [];
+    const { id } = region;
+    const currentRegion = currentRegions.find((item: IAudioTimeSlice) => item.id === id);
+
+    let newRegions = [];
+    if (currentRegion) {
+      newRegions = currentRegions.map((item: IAudioTimeSlice) => {
+        if (id === item.id) {
+          return {
+            ...item,
+            ...region,
+          };
+        }
+        return item;
+      });
+    } else {
+      newRegions = [...currentRegions, region];
+    }
+
+    setResult({
+      ...result,
+      regions: newRegions,
+    });
+  });
 
   const updateText = (val: string, key: string) => {
-    setResult((result: any) => ({
+    const newResult = {
       ...result,
       value: {
         ...result.value,
         [key]: val,
       },
-    }));
+    };
+    setResult(newResult);
   };
 
   const updateTagResult = (tagResult: any) => {
-    setResult((result: any) => ({
-      ...result,
-      tag: tagResult,
-    }));
+    const newResult = { ...result, tag: tagResult };
+    setResult(newResult);
   };
 
   const updateResult = (result: any) => {
@@ -567,12 +577,13 @@ const AudioAnnotate: React.FC<AppProps & IProps> = (props) => {
   };
 
   const clearResult = () => {
-    setResult((result: any) => ({
+    const newResult = {
       ...result,
       value: getInitValue(),
       tag: {},
       regions: [],
-    }));
+    };
+    setResult(newResult);
     EventBus.emit('clearRegions');
   };
 
