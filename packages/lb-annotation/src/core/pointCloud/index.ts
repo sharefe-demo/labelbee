@@ -267,15 +267,14 @@ export class PointCloud extends EventListener {
     });
   }
 
-  public setHighlightColor(selectedId: string) {
+  public setHighlightColor(selectedId?: string) {
     this.scene.children.forEach((child) => {
       if (!(child instanceof THREE.Group)) return;
-      const color = child.name === `box${selectedId}` ? this.highlightColor : child.userData.defaultColor;
+      const color = selectedId && child.name === `box${selectedId}` ? this.highlightColor : child.userData.defaultColor;
       child.children.forEach((grandson) => {
         this.updateMaterialColor(grandson, color);
       });
     });
-    this.render();
   }
 
   private updateMaterialColor(child: THREE.Object3D<THREE.Event>, color: THREE.ColorRepresentation) {
