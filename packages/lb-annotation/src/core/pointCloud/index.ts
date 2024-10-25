@@ -275,7 +275,6 @@ export class PointCloud extends EventListener {
         this.updateMaterialColor(grandson, color);
       });
     });
-    this.render();
   }
 
   private updateMaterialColor(child: THREE.Object3D<THREE.Event>, color: THREE.ColorRepresentation) {

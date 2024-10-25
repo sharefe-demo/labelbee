@@ -136,6 +136,7 @@ const useUpdatePointCloudColor = (setResourceLoading: any, config: any) => {
       mainViewInstance.generateBoxes(pointCloudBoxList);
       if (newSelectedBox) {
         mainViewInstance.setHighlightColor(newSelectedBox.id);
+        mainViewInstance.render();
       }
     }
 

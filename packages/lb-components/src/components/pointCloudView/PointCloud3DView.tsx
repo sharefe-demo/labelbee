@@ -252,9 +252,9 @@ const PointCloud3D: React.FC<IA2MapStateProps> = ({ currentData, config, highlig
       ptCtx.mainViewInstance?.updateCameraZoom(zoom);
     }
     // when create new box, need to wait for a moment to init box.
-    setTimeout(() => {
-      ptCtx.mainViewInstance?.setHighlightColor(selectedId);
-    }, 100);
+    ptCtx.mainViewInstance?.setHighlightColor(selectedId);
+    ptCtx.mainViewInstance?.render();
+
   }, [selectedBox?.info?.id]);
 
   useEffect(() => {

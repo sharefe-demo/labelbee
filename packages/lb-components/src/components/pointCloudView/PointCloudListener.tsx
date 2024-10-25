@@ -323,6 +323,7 @@ const PointCloudListener: React.FC<IProps> = ({
         if (ptCtx.mainViewInstance && ptCtx.selectedPointCloudBox) {
           ptCtx.mainViewInstance.generateBox(ptCtx.selectedPointCloudBox);
           ptCtx.mainViewInstance.setHighlightColor(selectBox.id);
+          ptCtx.mainViewInstance.render();
         }
       }
     };
